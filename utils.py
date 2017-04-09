@@ -62,7 +62,7 @@ class SunWatchMatcher(object):
         return dist
 
     def match_dispatch(self):
-        DISPATCH = dispatches[['latitude', 'longitude']].ix[0]
+        DISPATCH = self.dispatches[['latitude', 'longitude']].ix[0]
 
         df = self.electricians.copy()
         df['dist'] = [self._euclidean(df[['latitude', 'longitude']].ix[i], DISPATCH) for i in xrange(df.shape[0])]
@@ -75,7 +75,11 @@ class SunWatchMatcher(object):
         self.fours.columns  = df.columns[:]
         self.fives.columns  = df.columns[:]
 
-        return self.fives.ix[0], self.fours.ix[0], self.threes.ix[0]
+        best_three = pd.DataFrame(columns=df.columns)
+        best_three.loc[0] = self.fives.ix[0]
+        best_three.loc[1] = self.fours.ix[0]
+        best_three.loc[2] = self.threes.ix[0]
+        return best_three
 
     def match_all(self):
         for i in self.dispatches.shape[0]:
@@ -108,13 +112,13 @@ def enphase_request(user, key, fault_lut):
         return fault_lut[summary['status']]
 
 fault_lut = {
-    'comm':         'One or more Envoys on the system are not communicating to Enlighten.'
-    'power':        'There is a production issue on the system.'
-    'meter':        'There is a communication problem between an Envoy and a revenue-grade meter on the system.'
-    'meter_issue':  'One or more meters on the system are reporting unusual measurements.'
-    'micro':        'There is a communication problem between an Envoy and microinverters that it monitors.'
-    'battery':      'There is a communication problem between an Envoy and an AC battery on the system.'
-    'storage_idle': 'An AC battery on the system has not changed its state of charge for more than 72 hours.'
+    'comm':         'One or more Envoys on the system are not communicating to Enlighten.',
+    'power':        'There is a production issue on the system.',
+    'meter':        'There is a communication problem between an Envoy and a revenue-grade meter on the system.',
+    'meter_issue':  'One or more meters on the system are reporting unusual measurements.',
+    'micro':        'There is a communication problem between an Envoy and microinverters that it monitors.',
+    'battery':      'There is a communication problem between an Envoy and an AC battery on the system.',
+    'storage_idle': 'An AC battery on the system has not changed its state of charge for more than 72 hours.',
     'normal':       'The system is operating normally.'
 }
 
